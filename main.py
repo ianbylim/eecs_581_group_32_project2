@@ -1,3 +1,17 @@
+'''
+Module: main.py
+Description: The main entry point for the Minesweeper game. It initializes the game, manages
+    the game states (main menu and gameplay), and handles transitions between these states.
+    The GameStateManager is used to track the current state of the game, allowing for smooth
+    transitions between the main menu and the Minesweeper game itself. The main loop waits
+    for events and updates the display accordingly.
+Inputs: None
+Outputs: None
+External Sources: Pygame library
+Authors: Wesley McDougal, Abdulaziz Ali
+
+'''
+
 import pygame
 import sys
 from gamestate_manager import GameStateManager
@@ -6,28 +20,30 @@ from Minesweeper import MineSweeper
 
 WIDTH, HEIGHT = 400, 300
 
-#this will be the start point of the game
+# Start point of the game
 class Game:
     def __init__(self):
         '''
         Initialize a screen for the gameStateManager to use 
         and set all state possibilites
         '''
+
         pygame.init()
 
-        #set screen
+        # Set screen
         self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
         self.clock = pygame.time.Clock()
-        #initialize gamestate manager to start at main_menu
+
+        # Initialize gamestate manager to start at main_menu
         self.gameStateManager = GameStateManager("main_menu")
 
-        #initialize main menu
+        # Initialize main menu
         self.mainMenu = MainMenu(self.gameStateManager)
 
-        #store all possible states
+        # Store all possible states
         self.states = {"main_menu": self.mainMenu}
 
-        # start with menu’s dimensions
+        # Start with menu’s dimensions
         self.screen = pygame.display.set_mode(
             (self.mainMenu.WIDTH, self.mainMenu.HEIGHT)
         )
@@ -38,17 +54,19 @@ class Game:
         switches state of the current game to the state
         that is recieved (ie. switching from main menu to the game)
         '''
+
         while True:
-            # if users quits 
+
+            # If users quits 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     sys.exit()
             
-            #run the current state
+            # Run the current state
             state = self.gameStateManager.getState()
 
-            # resize window if needed
+            # Resize window if needed
             if state == "main_menu":
                 current = self.states["main_menu"]
                 if self.screen.get_size() != (current.WIDTH, current.HEIGHT):
@@ -58,7 +76,7 @@ class Game:
                 current.run()
 
             elif state == "mine_sweeper":
-                MineSweeper(self.gameStateManager).run()  # new instance each time
+                MineSweeper(self.gameStateManager).run()  # Create new instance each time
             else:
                 self.states[self.gameStateManager.getState()].run()
 
