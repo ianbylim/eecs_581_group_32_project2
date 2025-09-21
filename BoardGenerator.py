@@ -1,34 +1,47 @@
+'''
+Module: Minesweeper Board Generator
+Description: Builds the board for minesweeper, using the 'random' module to generate bombs.
+             Also assigns values to the cells which indicate the number of mines in proximity.
+Inputs: Random values
+Outputs: Completed minesweeper board
+External Sources: None
+Authors: Abdulaziz Ali, Subat Sultan, 
+Creation Date: 9/6/2025
+'''
+
 import random
-#----------print grid(for debuging)
+
+# Print grid for debugging purposes
 def print_grid(grid):
     for i in grid:
         print(i)
 
-# ---------Generate Bombs----------
+# Generate Bombs
 def generate_bombs(bombCount, safe_row=None, safe_col=None):
-    #create 10 by 10 grid
+    
+    # Create 10 by 10 grid
     grid = [[0 for _ in range(10)] for _ in range(10)]
     
-    #place bombs at random location on grid
+    # Place bombs at random location on grid
     i = 0
     while i < bombCount:
         placement = random.randint(0,99)
         row = placement//10
         column = placement%10
 
-        #if a safe row and col are specified all blocks within a one block radius should be safe from bombs
+        # If a safe row and col are specified, all blocks within a one block radius should be safe from bombs
         if safe_row and safe_col:
             if abs(row - safe_row) <= 1 and abs(column - safe_col) <= 1:
                 continue
 
-        #if current placement is not a bomb
+        # Ensure current placement is not a bomb before placing one
         if grid[row][column] != 'b':
             grid[row][column] = 'b'
             i+=1
 
     return grid
 
-#-------generate the numbers that
+# Generate the numbers that appear on cells adjacent to bombs
 def generate_numbering(grid):
     for i in range(len(grid)):
         for j in range(len(grid[i])):
