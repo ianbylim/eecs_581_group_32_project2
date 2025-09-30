@@ -12,6 +12,7 @@ Creation Date: 9/2/2025
 
 import pygame
 import sys
+import config
 
 class MainMenu:
     def __init__(self, gameStateManager):
@@ -39,10 +40,14 @@ class MainMenu:
         self.mine_count = 10
 
         # Buttons
-        self.start_button = pygame.Rect(self.WIDTH//2 - 60, self.HEIGHT - 80, 120, 40)
+        self.start_button = pygame.Rect(self.WIDTH//2 - 60, self.HEIGHT - 120, 120, 40)
         self.minus_button = pygame.Rect(self.WIDTH//2 - 70, self.HEIGHT//2 - 20, 40, 40)
         self.plus_button = pygame.Rect(self.WIDTH//2 + 30, self.HEIGHT//2 - 20, 40, 40)
 
+        # AI Buttons
+        self.easy_button = pygame.Rect(10, self.HEIGHT - 60, 120, 40)
+        self.medium_button = pygame.Rect(self.WIDTH//2 - 60, self.HEIGHT - 60, 120, 40)
+        self.hard_button = pygame.Rect(270, self.HEIGHT - 60, 120, 40)
 
     # Draw the menu
     def draw_menu(self):
@@ -76,6 +81,21 @@ class MainMenu:
         start_text = self.SMALL_FONT.render("Start Game", True, self.WHITE)
         self.screen.blit(start_text, (self.start_button.centerx - start_text.get_width()//2, self.start_button.centery - start_text.get_height()//2))
 
+        # Easy button
+        pygame.draw.rect(self.screen, self.DARK_GRAY, self.easy_button)
+        easy_text = self.SMALL_FONT.render("Easy AI", True, self.WHITE)
+        self.screen.blit(easy_text, (self.easy_button.centerx - easy_text.get_width()//2, self.easy_button.centery - easy_text.get_height()//2))
+
+        # Medium button
+        pygame.draw.rect(self.screen, self.DARK_GRAY, self.medium_button)
+        medium_text = self.SMALL_FONT.render("Medium AI", True, self.WHITE)
+        self.screen.blit(medium_text, (self.medium_button.centerx - medium_text.get_width()//2, self.medium_button.centery - medium_text.get_height()//2))
+
+        # Hard button
+        pygame.draw.rect(self.screen, self.DARK_GRAY, self.hard_button)
+        hard_text = self.SMALL_FONT.render("Hard AI", True, self.WHITE)
+        self.screen.blit(hard_text, (self.hard_button.centerx - hard_text.get_width()//2, self.hard_button.centery - hard_text.get_height()//2))
+
         pygame.display.flip()
 
 
@@ -101,6 +121,30 @@ class MainMenu:
                             self.mine_count += 1
 
                     elif self.start_button.collidepoint(event.pos):
+                        # Run MineSweeper.py and pass mine_count so it can be used there
+                        self.gameStateManager.setState('mine_sweeper', {"numMine": self.mine_count})
+                        # Return to loop in Game class
+                        return
+                    
+                    elif self.easy_button.collidepoint(event.pos):
+                        # Selects easy AI
+                        config.EASY_AI = True
+                        # Run MineSweeper.py and pass mine_count so it can be used there
+                        self.gameStateManager.setState('mine_sweeper', {"numMine": self.mine_count})
+                        # Return to loop in Game class
+                        return
+                    
+                    elif self.medium_button.collidepoint(event.pos):
+                        # Selects medium AI
+                        config.MEDIUM_AI = True
+                        # Run MineSweeper.py and pass mine_count so it can be used there
+                        self.gameStateManager.setState('mine_sweeper', {"numMine": self.mine_count})
+                        # Return to loop in Game class
+                        return
+                    
+                    elif self.hard_button.collidepoint(event.pos):
+                        # Selects hard AI
+                        config.HARD_AI
                         # Run MineSweeper.py and pass mine_count so it can be used there
                         self.gameStateManager.setState('mine_sweeper', {"numMine": self.mine_count})
                         # Return to loop in Game class

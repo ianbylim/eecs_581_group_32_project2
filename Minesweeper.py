@@ -16,6 +16,7 @@ import pygame
 import sys
 import BoardGenerator
 from grid import Grid
+import config
 
 # RGB variables
 black = (0, 0, 0)
@@ -242,6 +243,10 @@ class MineSweeper:
                             return
                         elif self.quit_rect.collidepoint(mouse_pos):
                             self.gameStateManager.setState("main_menu")
+                            # Changes AI back to unset.
+                            config.EASY_AI = False
+                            config.MEDIUM_AI = False
+                            config.HARD_AI = False
                             return
                             
                         for row in self.grid:
@@ -259,6 +264,8 @@ class MineSweeper:
                                                 if self.grid[cell.yGrid][cell.xGrid]:
                                                     self.reveal_neighbors(cell.xGrid, cell.yGrid)
                                                     
+                                            self.ai_uncover() # AI takes a turn and uncovers a cell
+
                                         else:
                                             result = cell.reveal()
                                             if result == "mine":
@@ -299,6 +306,8 @@ class MineSweeper:
                 self.gameDisplay.blit(frame_surface, (0,0))
                 pygame.display.flip()  # Flip once per frame
                 self.clock.tick(30)
+
+                self.ai_uncover() # AI takes a turn and uncovers a cell
 
             # Wait for user input to restart or quit to menu
             waiting = True
@@ -372,3 +381,55 @@ class MineSweeper:
                 if cell.val != "b" and not cell.clicked:
                     return False
         return True
+    
+    def check_lose(self):
+        '''
+        Iterate through the grid and checks if a 
+        cell is a bomb and has been clicked.
+        '''
+        
+        for row in self.grid:
+            for cell in row:
+                if cell.val == "b" and cell.clicked:
+                    return True
+        return False
+
+    def ai_uncover(self):
+        if config.EASY_AI == True:
+            # Call easy AI uncover function.
+            return
+        elif config.MEDIUM_AI == True:
+            # Call medium AI uncover function.
+            return
+        elif config.HARD_AI == True:
+            # Call hard AI uncover function.
+            return
+        
+        # Draw grid and create off-screen frame buffer
+        frame_surface = pygame.Surface((app_width, app_height))
+        frame_surface.fill((192, 192, 192))  # Background
+        for row in self.grid:
+            for cell in row:
+                cell.drawGrid(frame_surface)
+        # Draw labels and HUD
+        self.draw_labels(frame_surface)                
+        self.draw_hud(frame_surface)
+        # Blit buffer to main display
+        self.gameDisplay.blit(frame_surface, (0,0))
+        pygame.display.flip()  # Flip once per frame
+        self.clock.tick(30)
+
+        # Check for win
+        if self.check_win():
+            self.game_over = True
+            self.game_win = True
+            self.game_status = "Win"
+
+        if self.check_lose():
+            # Game over: AI clicked on a mine
+            self.game_over = True
+            self.game_win = False
+            self.game_status = "Loss"
+            # Reveal all mines
+            for mx, my in self.mines:
+                self.grid[my][mx].clicked = True
