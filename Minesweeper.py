@@ -264,7 +264,8 @@ class MineSweeper:
                                                 if self.grid[cell.yGrid][cell.xGrid]:
                                                     self.reveal_neighbors(cell.xGrid, cell.yGrid)
                                                     
-                                            self.ai_uncover() # AI takes a turn and uncovers a cell
+                                            if config.EASY_AI or config.MEDIUM_AI or config.HARD_AI:        
+                                                self.ai_uncover() # AI takes a turn and uncovers a cell
 
                                         else:
                                             result = cell.reveal()
@@ -307,7 +308,8 @@ class MineSweeper:
                 pygame.display.flip()  # Flip once per frame
                 self.clock.tick(30)
 
-                self.ai_uncover() # AI takes a turn and uncovers a cell
+                if config.EASY_AI or config.MEDIUM_AI or config.HARD_AI:        
+                    self.ai_uncover() # AI takes a turn and uncovers a cell
 
             # Wait for user input to restart or quit to menu
             waiting = True
