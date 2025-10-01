@@ -16,7 +16,7 @@ import pygame
 import sys
 import BoardGenerator
 from grid import Grid
-import config
+import random
 
 # RGB variables
 black = (0, 0, 0)
@@ -64,6 +64,9 @@ class MineSweeper:
 
         # Flag to track first click 
         self.first_click = True
+
+        # Track the difficulty
+        self.difficulty = None
 
         # HUD Assets
         self.flag_icon = pygame.image.load("sprites/flag.png")
@@ -154,7 +157,6 @@ class MineSweeper:
             label = chr(ord('A') + col) 
             text = font.render(label, True, black)
 
-
             x = border + grid_offset_x + col * grid_size + grid_size // 2 - text.get_width() // 2
             # Position on top of the grid
             y = top_border + grid_offset_y - 30
@@ -180,6 +182,7 @@ class MineSweeper:
         params = self.gameStateManager.getParams()
         # Set to 10 if param set to num
         numMine = params.get("numMine", 10)
+        self.difficulty = params.get("difficulty")
 
         # Program entry point
         #print(f"gameloop start... \nNumber of Mines = {numMine}")  # Debug print to console
@@ -202,6 +205,27 @@ class MineSweeper:
         self.game_over = False
         
         self.initialized = True
+    
+    def check_state(self, result, cell):
+
+        if result == "mine":
+            # Game over: player clicked on a mine
+            self.game_over = True
+            self.game_win = False
+            self.game_status = "Loss"
+            # Reveal all mines
+            for mx, my in self.mines:
+                self.grid[my][mx].clicked = True
+                    
+        # If the cell is empty, recursively reveal neighbors
+        if result == "empty":
+            self.reveal_neighbors(cell.xGrid, cell.yGrid)
+
+        # Check for win
+        if self.check_win():
+            self.game_over = True
+            self.game_win = True
+            self.game_status = "Win"
 
     # Main game loop
     def run(self):
@@ -243,10 +267,6 @@ class MineSweeper:
                             return
                         elif self.quit_rect.collidepoint(mouse_pos):
                             self.gameStateManager.setState("main_menu")
-                            # Changes AI back to unset.
-                            config.EASY_AI = False
-                            config.MEDIUM_AI = False
-                            config.HARD_AI = False
                             return
                             
                         for row in self.grid:
@@ -263,30 +283,25 @@ class MineSweeper:
                                                 self.grid[cell.yGrid][cell.xGrid].clicked = True
                                                 if self.grid[cell.yGrid][cell.xGrid]:
                                                     self.reveal_neighbors(cell.xGrid, cell.yGrid)
+                                            
+                                            self.check_state(result,cell)
                                                     
-                                            if config.EASY_AI or config.MEDIUM_AI or config.HARD_AI:        
-                                                self.ai_uncover() # AI takes a turn and uncovers a cell
+                                            if self.difficulty == "easy" or self.difficulty == "medium" or self.difficulty == "hard":  
+                                                if result == "number":
+                                                    result, cell = self.ai_uncover() # AI takes a turn and uncovers a cell
+
+                                            self.check_state(result,cell)
 
                                         else:
                                             result = cell.reveal()
-                                            if result == "mine":
-                                                # Game over: player clicked on a mine
-                                                self.game_over = True
-                                                self.game_win = False
-                                                self.game_status = "Loss"
-                                                # Reveal all mines
-                                                for mx, my in self.mines:
-                                                    self.grid[my][mx].clicked = True
-                                                    
-                                        # If the cell is empty, recursively reveal neighbors
-                                        if result == "empty":
-                                            self.reveal_neighbors(cell.xGrid, cell.yGrid)
 
-                                        # Check for win
-                                        if self.check_win():
-                                            self.game_over = True
-                                            self.game_win = True
-                                            self.game_status = "Win"
+                                            self.check_state(result,cell)
+                                            
+                                            if self.difficulty == "easy" or self.difficulty == "medium" or self.difficulty == "hard":
+                                                if result == "number":       
+                                                    result, cell = self.ai_uncover() # AI takes a turn and uncovers a cell
+
+                                            self.check_state(result,cell)
                                             
                                     # Right click to toggle flag
                                     elif event.button == 3:  
@@ -307,9 +322,6 @@ class MineSweeper:
                 self.gameDisplay.blit(frame_surface, (0,0))
                 pygame.display.flip()  # Flip once per frame
                 self.clock.tick(30)
-
-                if config.EASY_AI or config.MEDIUM_AI or config.HARD_AI:        
-                    self.ai_uncover() # AI takes a turn and uncovers a cell
 
             # Wait for user input to restart or quit to menu
             waiting = True
@@ -397,41 +409,23 @@ class MineSweeper:
         return False
 
     def ai_uncover(self):
-        if config.EASY_AI == True:
-            # Call easy AI uncover function.
-            return
-        elif config.MEDIUM_AI == True:
+        if self.difficulty == "easy":
+            # Find all unclicked, non-flagged cells
+            unclicked_cells = [(x, y) for y in range(grid_height) for x in range(grid_width) 
+                if not self.grid[y][x].clicked and not self.grid[y][x].flag]
+            
+            if not unclicked_cells:
+                return
+            
+            # Randomly choose one cell
+            x, y = random.choice(unclicked_cells)
+            return self.grid[y][x].reveal(), self.grid[y][x]  # Uncover the chosen cell
+
+        elif self.difficulty == "medium":
+            print("Medium RAN")
             # Call medium AI uncover function.
             return
-        elif config.HARD_AI == True:
+        elif self.difficulty == "hard":
+            print("Hard RAN")
             # Call hard AI uncover function.
             return
-        
-        # Draw grid and create off-screen frame buffer
-        frame_surface = pygame.Surface((app_width, app_height))
-        frame_surface.fill((192, 192, 192))  # Background
-        for row in self.grid:
-            for cell in row:
-                cell.drawGrid(frame_surface)
-        # Draw labels and HUD
-        self.draw_labels(frame_surface)                
-        self.draw_hud(frame_surface)
-        # Blit buffer to main display
-        self.gameDisplay.blit(frame_surface, (0,0))
-        pygame.display.flip()  # Flip once per frame
-        self.clock.tick(30)
-
-        # Check for win
-        if self.check_win():
-            self.game_over = True
-            self.game_win = True
-            self.game_status = "Win"
-
-        if self.check_lose():
-            # Game over: AI clicked on a mine
-            self.game_over = True
-            self.game_win = False
-            self.game_status = "Loss"
-            # Reveal all mines
-            for mx, my in self.mines:
-                self.grid[my][mx].clicked = True
