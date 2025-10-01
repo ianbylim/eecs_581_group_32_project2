@@ -25,6 +25,9 @@ class MainMenu:
         self.GRAY = (200, 200, 200)
         self.DARK_GRAY = (100, 100, 100)
         self.BLUE = (50, 100, 200)
+        self.GREEN = (0, 150, 0)
+        self.YELLOW = (200, 150, 0)
+        self.RED = (200, 0, 0)
 
         # Screen setup
         self.WIDTH, self.HEIGHT = 400, 300
@@ -40,9 +43,14 @@ class MainMenu:
         self.mine_count = 10
 
         # Buttons
-        self.start_button = pygame.Rect(self.WIDTH//2 - 60, self.HEIGHT - 120, 120, 40)
-        self.minus_button = pygame.Rect(self.WIDTH//2 - 70, self.HEIGHT//2 - 20, 40, 40)
-        self.plus_button = pygame.Rect(self.WIDTH//2 + 30, self.HEIGHT//2 - 20, 40, 40)
+        self.start_button = pygame.Rect(self.WIDTH//2 - 60, self.HEIGHT - 50, 120, 40)
+        self.minus_button = pygame.Rect(self.WIDTH//2 - 70, self.HEIGHT//2 + 45, 40, 40)
+        self.plus_button = pygame.Rect(self.WIDTH//2 + 30, self.HEIGHT//2 + 45, 40, 40)
+
+        # Difficulty buttons
+        self.easy_button = pygame.Rect(self.WIDTH//2 - 150, self.HEIGHT//2 - 30, 100, 40)
+        self.medium_button = pygame.Rect(self.WIDTH//2 - 50, self.HEIGHT//2 - 30, 100, 40)
+        self.hard_button = pygame.Rect(self.WIDTH//2 + 50, self.HEIGHT//2 - 30, 100, 40)
 
     # Draw the menu
     def draw_menu(self):
@@ -55,11 +63,11 @@ class MainMenu:
 
         # Mine count label
         label_text = self.SMALL_FONT.render("Select Mine Count:", True, self.BLACK)
-        self.screen.blit(label_text, (self.WIDTH//2 - label_text.get_width()//2, self.HEIGHT//2 - 50))
+        self.screen.blit(label_text, (self.WIDTH//2 - label_text.get_width()//2, self.HEIGHT//2 + 20))
 
         # Mine count display
         count_text = self.FONT.render(str(self.mine_count), True, self.BLUE)
-        self.screen.blit(count_text, (self.WIDTH//2 - count_text.get_width()//2, self.HEIGHT//2 - 10))
+        self.screen.blit(count_text, (self.WIDTH//2 - count_text.get_width()//2, self.HEIGHT//2 + 55))
 
         # Minus button
         pygame.draw.rect(self.screen, self.GRAY, self.minus_button)
@@ -71,11 +79,30 @@ class MainMenu:
         plus_text = self.FONT.render("+", True, self.BLACK)
         self.screen.blit(plus_text, (self.plus_button.centerx - plus_text.get_width()//2, self.plus_button.centery - plus_text.get_height()//2))
 
+        # AI Difficulty Label
+        AI_text = self.SMALL_FONT.render("Select AI Difficulty:", True, self.BLACK)
+        self.screen.blit(AI_text, (self.WIDTH//2 - label_text.get_width()//2, self.HEIGHT//2 - 55))
+
+        # Easy button
+        pygame.draw.rect(self.screen, self.GREEN, self.easy_button)
+        easy_text = self.SMALL_FONT.render("Easy", True, self.WHITE)
+        self.screen.blit(easy_text, (self.easy_button.centerx - easy_text.get_width()//2, self.easy_button.centery - easy_text.get_height()//2))
+        
+        # Medium button
+        pygame.draw.rect(self.screen, self.YELLOW, self.medium_button)
+        medium_text = self.SMALL_FONT.render("Medium", True, self.WHITE)
+        self.screen.blit(medium_text, (self.medium_button.centerx - medium_text.get_width()//2, self.medium_button.centery - medium_text.get_height()//2))
+
+        # Hard button
+        pygame.draw.rect(self.screen, self.RED, self.hard_button)
+        hard_text = self.SMALL_FONT.render("Hard", True, self.WHITE)
+        self.screen.blit(hard_text, (self.hard_button.centerx - hard_text.get_width()//2, self.hard_button.centery - hard_text.get_height()//2))
+
         # Start button
         pygame.draw.rect(self.screen, self.DARK_GRAY, self.start_button)
         start_text = self.SMALL_FONT.render("Start Game", True, self.WHITE)
         self.screen.blit(start_text, (self.start_button.centerx - start_text.get_width()//2, self.start_button.centery - start_text.get_height()//2))
-
+        
         pygame.display.flip()
 
 
@@ -100,6 +127,15 @@ class MainMenu:
                         if self.mine_count < 20:
                             self.mine_count += 1
 
+                    elif self.easy_button.collidepoint(event.pos):
+                        pass
+                    
+                    elif self.medium_button.collidepoint(event.pos):
+                        pass
+
+                    elif self.hard_button.collidepoint(event.pos):
+                        pass
+                    
                     elif self.start_button.collidepoint(event.pos):
                         # Run MineSweeper.py and pass mine_count so it can be used there
                         self.gameStateManager.setState('mine_sweeper', {"numMine": self.mine_count})
