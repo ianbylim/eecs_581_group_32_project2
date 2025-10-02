@@ -86,7 +86,30 @@ class MineSweeper:
 
         # Track game state text
         self.game_status = "Playing"
+
+        # SFX: load 
+        self._s_click = self._try_load_sfx("audio/click.wav", 0.7)
+        self._s_flag  = self._try_load_sfx("audio/flag.wav",  0.7)
+        self._s_unflg = self._try_load_sfx("audio/unflag.wav", 0.7)  
+        self._s_win   = self._try_load_sfx("audio/win.wav",   0.8)
+        self._s_lose  = self._try_load_sfx("audio/lose.wav",  0.8)
+        
+
+    # SFX helpers
+    def _try_load_sfx(self, path, vol=0.7):
+        try:
+            s = pygame.mixer.Sound(path)
+            s.set_volume(vol)
+            return s
+        except Exception:
+            return None
+
+    def _play(self, sfx):
+        if sfx:
+            try: sfx.play()
+            except Exception: pass
     
+
     def draw_hud(self, surface):
         '''
         Draws the hud elements flags left, retry, back to menu, 
@@ -213,6 +236,7 @@ class MineSweeper:
             self.game_over = True
             self.game_win = False
             self.game_status = "Loss"
+            self._play(self._s_lose)  # SFX (added)
             # Reveal all mines
             for mx, my in self.mines:
                 self.grid[my][mx].clicked = True
@@ -226,6 +250,7 @@ class MineSweeper:
             self.game_over = True
             self.game_win = True
             self.game_status = "Win"
+            self._play(self._s_win)  # SFX (added)
 
     # Main game loop
     def run(self):
@@ -276,6 +301,7 @@ class MineSweeper:
                                         if self.first_click:
                                             self.first_click = False
                                             result = cell.reveal() # If it's a mine, just reveal it but don't end the game
+                                            self._play(self._s_click)  # SFX (added)
                                             
                                             if result != "empty":
                                                 # Reinitialize board and make first clicked area safe
@@ -294,6 +320,7 @@ class MineSweeper:
 
                                         else:
                                             result = cell.reveal()
+                                            self._play(self._s_click)  # SFX (added)
 
                                             self.check_state(result,cell)
                                             
@@ -305,7 +332,12 @@ class MineSweeper:
                                             
                                     # Right click to toggle flag
                                     elif event.button == 3:  
+                                        prev = cell.flag                     # (added) capture prior state
                                         cell.toggleFlag()
+                                        if cell.flag and not prev:
+                                            self._play(self._s_flag)         # SFX (added)
+                                        elif (not cell.flag) and prev:
+                                            self._play(self._s_unflg or self._s_flag)  # SFX (added, fallback)
 
                 # Draw grid and create off-screen frame buffer
                 frame_surface = pygame.Surface((app_width, app_height))
