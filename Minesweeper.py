@@ -439,30 +439,10 @@ class MineSweeper:
                 if cell.val == "b" and cell.clicked:
                     return True
         return False
-
-    def ai_uncover(self):
-        if self.difficulty == "easy":
-            # Find all unclicked, non-flagged cells
-            unclicked_cells = [(x, y) for y in range(grid_height) for x in range(grid_width) 
-                if not self.grid[y][x].clicked and not self.grid[y][x].flag]
-            
-            if not unclicked_cells:
-                return
-            
-            # Randomly choose one cell
-            x, y = random.choice(unclicked_cells)
-            return self.grid[y][x].reveal(), self.grid[y][x]  # Uncover the chosen cell
-
-        elif self.difficulty == "medium":
-            # Find all unclicked, non-flagged cells
-            unclicked_cells = [(x, y) for y in range(grid_height) for x in range(grid_width) 
-                if not self.grid[y][x].clicked and not self.grid[y][x].flag]
-            # Find all clicked, non-flagged cells that neighbor mines
-            clicked_cells = [(x, y) for y in range(grid_height) for x in range(grid_width) 
-                if self.grid[y][x].clicked and not self.grid[y][x].flag and self.grid[y][x].val != 0]
-            
-            # iterate over all clicked cells to find neighboring cells that can be flagged
-            for x,y in clicked_cells:
+    
+    # iterate over all clicked cells to find neighboring cells that can be flagged
+    def flag_cells(self,clicked_cells,unclicked_cells):
+        for x,y in clicked_cells:
                 hidden_neighbor = []
                 flagged_neighbor = []
                 # check all neighbors
@@ -488,7 +468,10 @@ class MineSweeper:
                             self.grid[j][i].toggleFlag()
                             hidden_neighbor.remove((i,j))
                             flagged_neighbor.append((i,j))
-            # iterate over all clicked cells to find neighboring cells that can be flagged
+
+    # Find cells with matching value and number of flagged neighbors to reveal safe cell
+    def reveal_hidden_neighbor(self,clicked_cells,unclicked_cells):
+        
             for x,y in clicked_cells:
                 flagged_neighbor = []
                 hidden_neighbor = []
@@ -512,13 +495,56 @@ class MineSweeper:
                 if self.grid[y][x].val == len(flagged_neighbor) and len(hidden_neighbor)!=0:
                     i,j = hidden_neighbor[0]
                     return self.grid[j][i].reveal(), self.grid[j][i]
+
+
+    def ai_uncover(self):
+        if self.difficulty == "easy":
+            # Find all unclicked, non-flagged cells
+            unclicked_cells = [(x, y) for y in range(grid_height) for x in range(grid_width) 
+                if not self.grid[y][x].clicked and not self.grid[y][x].flag]
+            
+            if not unclicked_cells:
+                return
+            
+            # Randomly choose one cell
+            x, y = random.choice(unclicked_cells)
+            return self.grid[y][x].reveal(), self.grid[y][x]  # Uncover the chosen cell
+
+        elif self.difficulty == "medium":
+            # Find all unclicked, non-flagged cells
+            unclicked_cells = [(x, y) for y in range(grid_height) for x in range(grid_width) 
+                if not self.grid[y][x].clicked and not self.grid[y][x].flag]
+            # Find all clicked, non-flagged cells that neighbor mines
+            clicked_cells = [(x, y) for y in range(grid_height) for x in range(grid_width) 
+                if self.grid[y][x].clicked and not self.grid[y][x].flag and self.grid[y][x].val != 0]
+            
+            # iterate over all clicked cells to find neighboring cells that can be flagged
+            self.flag_cells(clicked_cells,unclicked_cells)
+
+            # Find cells with matching value and number of flagged neighbors to reveal safe cell
+            self.reveal_hidden_neighbor(clicked_cells,unclicked_cells)
+
             # If the game is not already won, choose a random unclicked cell to reveal
             if self.game_status != 'win':
                 x, y = random.choice(unclicked_cells)
                 return self.grid[y][x].reveal(), self.grid[y][x]
         
         elif self.difficulty == "hard":
-            print("Hard RAN")
-
-            return
+           # Find all unclicked, non-flagged cells
+            unclicked_cells = [(x, y) for y in range(grid_height) for x in range(grid_width) 
+                if not self.grid[y][x].clicked and not self.grid[y][x].flag]
+            # Find all clicked, non-flagged cells that neighbor mines
+            clicked_cells = [(x, y) for y in range(grid_height) for x in range(grid_width) 
+                if self.grid[y][x].clicked and not self.grid[y][x].flag and self.grid[y][x].val != 0]
+            
+            # iterate over all clicked cells to find neighboring cells that can be flagged
+            self.flag_cells(clicked_cells,unclicked_cells)
+            
+            # Find cells with matching value and number of flagged neighbors to reveal safe cell
+            self.reveal_hidden_neighbor(clicked_cells,unclicked_cells)
+                
+            # If the game is not already won, choose a random unclicked cell to reveal
+            if self.game_status != 'win':
+                x, y = random.choice(unclicked_cells)
+                return self.grid[y][x].reveal(), self.grid[y][x]
         
