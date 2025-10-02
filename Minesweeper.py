@@ -454,10 +454,71 @@ class MineSweeper:
             return self.grid[y][x].reveal(), self.grid[y][x]  # Uncover the chosen cell
 
         elif self.difficulty == "medium":
-            print("Medium RAN")
-            # Call medium AI uncover function.
-            return
+            # Find all unclicked, non-flagged cells
+            unclicked_cells = [(x, y) for y in range(grid_height) for x in range(grid_width) 
+                if not self.grid[y][x].clicked and not self.grid[y][x].flag]
+            # Find all clicked, non-flagged cells that neighbor mines
+            clicked_cells = [(x, y) for y in range(grid_height) for x in range(grid_width) 
+                if self.grid[y][x].clicked and not self.grid[y][x].flag and self.grid[y][x].val != 0]
+            
+            # iterate over all clicked cells to find neighboring cells that can be flagged
+            for x,y in clicked_cells:
+                hidden_neighbor = []
+                flagged_neighbor = []
+                # check all neighbors
+                for di in [-1, 0, 1]:
+                    for dj in [-1, 0, 1]:
+                        #skip the cell itself
+                        if di == 0 and dj == 0:
+                            continue 
+                        # Calculate adjacent cell coordinates
+                        ni, nj = x + di, y + dj
+                        # Check if coordinates are within grid bounds
+                        if 0 <= ni < len(self.grid) and 0 <= nj < len(self.grid[0]):
+                            # Check if the neighboring cell is not clicked and is not flagged and add to array
+                            if (ni,nj) in unclicked_cells and not self.grid[nj][ni].flag:
+                                hidden_neighbor.append((ni,nj))
+                            # Check if the neighboring cell is a valid flag and add to array
+                            if self.grid[nj][ni].flag and self.grid[nj][ni].val == 'b':
+                                flagged_neighbor.append((ni,nj))
+                # If the number of hidden neighbors matches the value of the cell, flag all hidden neighbors and update
+                if  self.grid[y][x].val == (len(hidden_neighbor)+len(flagged_neighbor)):
+                    for i,j in hidden_neighbor:
+                        if not self.grid[j][i].flag:
+                            self.grid[j][i].toggleFlag()
+                            hidden_neighbor.remove((i,j))
+                            flagged_neighbor.append((i,j))
+            # iterate over all clicked cells to find neighboring cells that can be flagged
+            for x,y in clicked_cells:
+                flagged_neighbor = []
+                hidden_neighbor = []
+                # Check all neighbors
+                for di in [-1, 0, 1]:
+                    for dj in [-1, 0, 1]:
+                        #skip the cell itself
+                        if di == 0 and dj == 0:
+                            continue 
+                        # Calculate adjacent cell coordinates
+                        ni, nj = x + di, y + dj
+                        # Check if coordinates are within grid bounds
+                        if 0 <= ni < len(self.grid) and 0 <= nj < len(self.grid[0]):
+                            # Check if the neighboring cell is not clicked and is not flagged and add to array
+                            if (ni,nj) in unclicked_cells and not self.grid[nj][ni].flag:
+                                hidden_neighbor.append((ni,nj))
+                            # Check if the neighboring cell is a valid flag and add to array
+                            if self.grid[nj][ni].flag and self.grid[nj][ni].val == 'b':
+                                flagged_neighbor.append((ni,nj))
+                # If the value of the cell matches the number of flagged neighbors and there are hidden neighbors, reveal hidden neighbor                
+                if self.grid[y][x].val == len(flagged_neighbor) and len(hidden_neighbor)!=0:
+                    i,j = hidden_neighbor[0]
+                    return self.grid[j][i].reveal(), self.grid[j][i]
+            # If the game is not already won, choose a random unclicked cell to reveal
+            if self.game_status != 'win':
+                x, y = random.choice(unclicked_cells)
+                return self.grid[y][x].reveal(), self.grid[y][x]
+        
         elif self.difficulty == "hard":
             print("Hard RAN")
-            # Call hard AI uncover function.
+
             return
+        
