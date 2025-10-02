@@ -300,23 +300,17 @@ class MineSweeper:
                                     if event.button == 1:  # Left click
                                         if self.first_click:
                                             self.first_click = False
-                                            result = cell.reveal() # If it's a mine, just reveal it but don't end the game
-                                            self._play(self._s_click)  # SFX (added)
-                                            
-                                            if result != "empty":
-                                                # Reinitialize board and make first clicked area safe
-                                                self.initialize_minesweeper(cell.yGrid, cell.xGrid)
-                                                self.grid[cell.yGrid][cell.xGrid].clicked = True
-                                                if self.grid[cell.yGrid][cell.xGrid]:
-                                                    self.reveal_neighbors(cell.xGrid, cell.yGrid)
-                                            
-                                            self.check_state(result,cell)
-                                                    
-                                            if self.difficulty == "easy" or self.difficulty == "medium" or self.difficulty == "hard":  
-                                                if result == "number":
-                                                    result, cell = self.ai_uncover() # AI takes a turn and uncovers a cell
+                                            # Regenerate board guaranteeing this cell is safe
+                                            self.initialize_minesweeper(cell.yGrid, cell.xGrid)
 
-                                            self.check_state(result,cell)
+                                            # Now reveal the chosen cell safely
+                                            result = self.grid[cell.yGrid][cell.xGrid].reveal()
+                                            self._play(self._s_click)
+
+                                            if result == "empty":
+                                                self.reveal_neighbors(cell.xGrid, cell.yGrid)
+
+                                            self.check_state(result, self.grid[cell.yGrid][cell.xGrid])
 
                                         else:
                                             result = cell.reveal()
@@ -504,7 +498,7 @@ class MineSweeper:
                 if not self.grid[y][x].clicked and not self.grid[y][x].flag]
             
             if not unclicked_cells:
-                return
+                return None, None
             
             # Randomly choose one cell
             x, y = random.choice(unclicked_cells)
@@ -526,6 +520,8 @@ class MineSweeper:
 
             # If the game is not already won, choose a random unclicked cell to reveal
             if self.game_status != 'win':
+                if not unclicked_cells:
+                    return None, None
                 x, y = random.choice(unclicked_cells)
                 return self.grid[y][x].reveal(), self.grid[y][x]
         
@@ -545,6 +541,8 @@ class MineSweeper:
                 
             # If the game is not already won, choose a random unclicked cell to reveal
             if self.game_status != 'win':
+                if not unclicked_cells:
+                    return None, None
                 x, y = random.choice(unclicked_cells)
                 return self.grid[y][x].reveal(), self.grid[y][x]
         
