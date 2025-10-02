@@ -538,6 +538,79 @@ class MineSweeper:
             
             # Find cells with matching value and number of flagged neighbors to reveal safe cell
             self.reveal_hidden_neighbor(clicked_cells,unclicked_cells)
+            # 3) Hard extra: 1-2-1 pattern (horizontal & vertical)
+            #    Action priority: flag outer hidden first; if outers settled, reveal middle if hidden.
+            # --- horizontal 1-2-1 (numbers at y, x..x+2), act on row below or above ---
+            for y in range(grid_height):
+                for x in range(grid_width - 2):
+                    c1 = self.grid[y][x]
+                    c2 = self.grid[y][x+1]
+                    c3 = self.grid[y][x+2]
+                    if c1.clicked and c2.clicked and c3.clicked and c1.val == 1 and c2.val == 2 and c3.val == 1:
+                        # try row below
+                        if y + 1 < grid_height:
+                            b0 = self.grid[y+1][x]
+                            b1 = self.grid[y+1][x+1]
+                            b2 = self.grid[y+1][x+2]
+                            # prefer flagging outer unknowns
+                            if not b0.clicked and not b0.flag:
+                                b0.toggleFlag()
+                                return None, None
+                            if not b2.clicked and not b2.flag:
+                                b2.toggleFlag()
+                                return None, None
+                            # then reveal middle if still hidden & not flagged
+                            if not b1.clicked and not b1.flag:
+                                return b1.reveal(), b1
+                        # try row above
+                        if y - 1 >= 0:
+                            a0 = self.grid[y-1][x]
+                            a1 = self.grid[y-1][x+1]
+                            a2 = self.grid[y-1][x+2]
+                            if not a0.clicked and not a0.flag:
+                                a0.toggleFlag()
+                                return None, None
+                            if not a2.clicked and not a2.flag:
+                                a2.toggleFlag()
+                                return None, None
+                            if not a1.clicked and not a1.flag:
+                                return a1.reveal(), a1
+
+            # --- vertical 1-2-1 (numbers at x, y..y+2), act on column right or left ---
+            for x in range(grid_width):
+                for y in range(grid_height - 2):
+                    c1 = self.grid[y][x]
+                    c2 = self.grid[y+1][x]
+                    c3 = self.grid[y+2][x]
+                    if c1.clicked and c2.clicked and c3.clicked and c1.val == 1 and c2.val == 2 and c3.val == 1:
+                        # try column right
+                        if x + 1 < grid_width:
+                            r0 = self.grid[y][x+1]
+                            r1 = self.grid[y+1][x+1]
+                            r2 = self.grid[y+2][x+1]
+                            if not r0.clicked and not r0.flag:
+                                r0.toggleFlag()
+                                return None, None
+                            if not r2.clicked and not r2.flag:
+                                r2.toggleFlag()
+                                return None, None
+                            if not r1.clicked and not r1.flag:
+                                return r1.reveal(), r1
+                        # try column left
+                        if x - 1 >= 0:
+                            l0 = self.grid[y][x-1]
+                            l1 = self.grid[y+1][x-1]
+                            l2 = self.grid[y+2][x-1]
+                            if not l0.clicked and not l0.flag:
+                                l0.toggleFlag()
+                                return None, None
+                            if not l2.clicked and not l2.flag:
+                                l2.toggleFlag()
+                                return None, None
+                            if not l1.clicked and not l1.flag:
+                                return l1.reveal(), l1
+
+            
                 
             # If the game is not already won, choose a random unclicked cell to reveal
             if self.game_status != 'win':
