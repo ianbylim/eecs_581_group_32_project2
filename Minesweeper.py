@@ -1,13 +1,13 @@
 '''
 Module: Minesweeper Game
-Description: Implements the main game loop for Minesweeper, handling user input, game state updates, and rendering the game board and HUD.
+Description: Implements the main game loop for Minesweeper, handling user input, game state updates, and rendering the game board and HUD. Implements AI if neccessary.
 Inputs: User mouse clicks
 Outputs: Graphical display of the game board and HUD, game state changes (win/loss)
 External Sources: Pygame library for graphics and event handling
     How to install pygames - https://www.geeksforgeeks.org/installation-guide/how-to-install-pygame-in-windows/
     Pygames documentation - https://www.pygame.org/docs/
     Pygames Tutorial - https://coderslegacy.com/python/python-pygame-tutorial/
-Authors: Wesley McDougal, Abdulaziz Ali, Matthew Nash, Malek Kchaou
+Authors: Wesley McDougal, Abdulaziz Ali, Matthew Nash, Malek Kchaou, Jace Keagy, K Li, Ian Lim, Jenna Luong, Kit Magar, Bryce Martin.
 Creation Date: 9/4/2025
 '''
 

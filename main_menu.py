@@ -1,12 +1,12 @@
 '''
 Module: main_menu.py
-Description: A main menu for Minesweeper using Pygame. Allows player to select the number of mines (10-20) and start the game.
+Description: A main menu for Minesweeper using Pygame. Allows player to select the number of mines (10-20) and start the game. Allows user to select AI mode.
 Inputs: Player chosen number of mines.
 Outputs: Running the actual game with the grid. The number of mines will be sent to it.
 Sources:
     Used Copilot to help spacing out the buttons.
     Pygame event handling documentation used in main_menu(): https://www.pygame.org/docs/ref/event.html
-Author: Atharva Patil, 
+Author: Atharva Patil, Jace Keagy, K Li, Ian Lim, Jenna Luong, Kit Magar, Bryce Martin.
 Creation Date: 9/2/2025
 '''
 
